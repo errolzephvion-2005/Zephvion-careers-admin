@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Design System Colors */
+  --primary: #a3c9ff;
+  --primary-container: #3293f6;
+  --on-primary: #0e0e0e;
+  
+  --secondary: #49ffe9;
+  --secondary-fixed: #45fce6;
+  
+  --tertiary: #ffb68b;
+  
+  /* Surface Hierarchy */
+  --surface: #131313;
+  --on-surface: #c0c7d5; /* Reduced eye strain variant */
+  --on-surface-variant: #8e9199;
+  
+  --surface-container-lowest: #0e0e0e;
+  --surface-container-low: #1c1b1b;
+  --surface-container: #212121;
+  --surface-container-high: #2a2a2a;
+  --surface-container-highest: #353534;
+  
+  --surface-variant: rgba(42, 42, 42, 0.4);
+  --outline-variant: rgba(163, 201, 255, 0.15); /* Primary tinted ghost border */
+
+  /* Spacing & Others */
+  --radius-none: 0px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-fixed: var(--secondary-fixed);
+  
+  --color-tertiary: var(--tertiary);
+  
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  
+  --color-surface-lowest: var(--surface-container-lowest);
+  --color-surface-low: var(--surface-container-low);
+  --color-surface-high: var(--surface-container-high);
+  --color-surface-highest: var(--surface-container-highest);
+  
+  --color-surface-variant: var(--surface-variant);
+  --color-outline-variant: var(--outline-variant);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --font-display: var(--font-bebas);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
+  
+  --radius-sharp: 0px;
+
+  /* Custom Animations */
+  --animate-pulse-robotic: pulse-robotic 2s linear infinite;
+
+  @keyframes pulse-robotic {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom Utilities */
+@utility glass {
+  background: var(--surface-variant);
+  backdrop-filter: blur(20px);
 }
+
+@utility glass-border {
+  border: 1px solid var(--outline-variant);
+}
+
+@utility glow-primary {
+  box-shadow: 0 0 40px rgba(163, 201, 255, 0.06);
+}
+
+@utility gradient-primary {
+  background: linear-gradient(45deg, var(--primary), var(--primary-container));
+}
+
+@utility grid-bg {
+  background-image: radial-gradient(var(--surface-container-high) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Base Overrides */
+body {
+  @apply bg-surface text-on-surface font-sans antialiased;
+  margin: 0;
+}
+
+/* Typography Base Styles */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-display tracking-[0.02em] uppercase;
+}
+
