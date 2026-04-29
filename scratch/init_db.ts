@@ -20,17 +20,18 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-async function setupDatabase() {
-  console.log('--- RE-INITIALIZING INDUSTRIAL AUTH SYSTEM ---')
+async function initAuth() {
+  console.log('--- INITIALIZING SUPABASE AUTH RECORD ---')
   
-  const identifier = 'zephvion@zephvion.com'
-  const displayName = 'zephvion'
+  const email = 'zephvion@zephvion.com'
   const password = 'zephvion@2025'
+  const displayName = 'zephvion'
 
-  // 1. Create/Re-create Auth User
-  console.log(`Phase 1: Creating Auth record for [ ${displayName} ]...`)
+  console.log(`Target: ${email} / [ ${displayName} ]`)
+  
+  // Create/Update Auth user
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: identifier,
+    email: email,
     password: password,
     email_confirm: true,
     user_metadata: { 
@@ -40,25 +41,25 @@ async function setupDatabase() {
   })
 
   if (authError) {
-    console.error('Auth Error:', authError.message)
+    if (authError.message.includes('already exists')) {
+      console.log('User already exists. Syncing password...')
+      const { data: users } = await supabaseAdmin.auth.admin.listUsers()
+      const existingUser = users.users.find(u => u.email === email)
+      if (existingUser) {
+        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, { 
+          password: password,
+          user_metadata: { username: displayName, role: 'SUPER_ADMIN' }
+        })
+        console.log('Credentials synchronized.')
+      }
+    } else {
+      console.error('Auth Error:', authError.message)
+    }
   } else {
-    const userId = authData.user.id
-    console.log(`Auth record secured. ID: ${userId}`)
-
-    // 2. Create the 'profiles' table in the public schema to show requested columns
-    // We use RPC or just attempt to use the admin client to check/create if possible.
-    // Since we can't run raw SQL directly through the standard JS client easily without a stored proc,
-    // I will use the metadata for now, but I'll provide the SQL code for the user to run in their dashboard
-    // to see the "Columns" they requested in the Table Editor.
-    
-    console.log('Phase 2: Technical Metadata generated.')
-    console.log(`[ ID ] : ${userId}`)
-    console.log(`[ USERNAME ] : ${displayName}`)
-    console.log(`[ CREATED ] : ${authData.user.created_at}`)
-    console.log(`[ LAST_ACCESS ] : ${authData.user.last_sign_in_at || 'NEVER'}`)
+    console.log('User created successfully in auth.users.')
   }
 
-  console.log('--- SYSTEM RESTORED: AUTHENTICATION ACTIVE ---')
+  console.log('--- AUTHENTICATION RECORD READY ---')
 }
 
-setupDatabase()
+initAuth()

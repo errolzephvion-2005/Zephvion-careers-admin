@@ -56,7 +56,6 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protection Logic
   const isDashboard = request.nextUrl.pathname.startsWith('/dashboard')
   const isLogin = request.nextUrl.pathname.startsWith('/login')
 

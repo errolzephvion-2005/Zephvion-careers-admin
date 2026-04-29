@@ -1,38 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useActionState } from 'react'
+import { loginAction } from './actions'
+
+const initialState = {
+  error: null as string | null,
+}
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    // Map plain text username to internal auth email
-    const email = username.toLowerCase() === 'zephvion' 
-      ? 'zephvion@zephvion.com' 
-      : username
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      router.push('/dashboard')
-    }
-  }
+  const [state, formAction, isPending] = useActionState(loginAction, initialState)
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 grid-bg">
@@ -55,10 +31,10 @@ export default function LoginPage() {
           <p className="text-on-surface-variant text-sm font-sans">Initialize administrative credentials to proceed.</p>
         </header>
 
-        <form onSubmit={handleLogin} className="space-y-6 relative">
-          {error && (
+        <form action={formAction} className="space-y-6 relative">
+          {state?.error && (
             <div className="p-3 bg-tertiary/10 border-l-2 border-tertiary text-tertiary text-xs font-mono uppercase">
-              [ Error: {error} ]
+              [ Error: {state.error} ]
             </div>
           )}
 
@@ -67,10 +43,9 @@ export default function LoginPage() {
               [ Username ]
             </label>
             <input
+              name="username"
               type="text"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
               className="w-full bg-surface-lowest border-b-2 border-outline-variant focus:border-secondary focus:outline-none p-3 text-on-surface transition-all duration-300 font-mono"
               placeholder="ZEPHVION"
             />
@@ -81,21 +56,19 @@ export default function LoginPage() {
               [ Password ]
             </label>
             <input
+              name="password"
               type="password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-surface-lowest border-b-2 border-outline-variant focus:border-secondary focus:outline-none p-3 text-on-surface transition-all duration-300 font-mono"
             />
           </div>
 
-
           <button
             type="submit"
-            disabled={loading}
+            disabled={isPending}
             className="w-full gradient-primary text-on-primary py-4 font-display text-xl tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {loading ? 'Authenticating...' : 'Establish Connection'}
+            {isPending ? 'Authenticating...' : 'Establish Connection'}
           </button>
         </form>
 
@@ -111,3 +84,4 @@ export default function LoginPage() {
     </main>
   )
 }
+
