@@ -20,8 +20,9 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZEPHVION // INFRA",
+  title: "ZEPHVION CAREERS",
   description: "High-performance career infrastructure.",
+
 };
 
 export default function RootLayout({

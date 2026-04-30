@@ -59,14 +59,34 @@
 
   /* Custom Animations */
   --animate-pulse-robotic: pulse-robotic 2s linear infinite;
+  --animate-shimmer: shimmer 3s linear infinite;
 
   @keyframes pulse-robotic {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
   }
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
 }
 
 /* Custom Utilities */
+@utility silver-shimmer {
+  background: linear-gradient(
+    90deg,
+    #8e9199 0%,
+    #ffffff 45%,
+    #ffffff 55%,
+    #8e9199 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: var(--animate-shimmer);
+}
+
 @utility glass {
   background: var(--surface-variant);
   backdrop-filter: blur(20px);
