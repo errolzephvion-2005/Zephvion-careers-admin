@@ -51,20 +51,28 @@ export default function LoginPage() {
       <div
         onMouseEnter={() => setIsOverCard(true)}
         onMouseLeave={() => setIsOverCard(false)}
-        className="w-full max-w-md glass glass-border p-6 md:p-10 glow-primary relative z-10 transition-all duration-500"
+        className="w-full max-w-md glass glass-border p-6 md:p-10 glow-primary relative z-10 transition-all duration-500 overflow-hidden"
       >
-        <header className="mb-10 relative text-center">
+        <header className="mb-10 relative text-center overflow-hidden">
           <h1
-            className="text-6xl md:text-7xl font-display tracking-tighter mb-0"
+            className="font-display tracking-tighter mb-0.3 leading-none"
             style={{
+              fontSize: 'clamp(3rem, 20vw, 4.4rem)',
               color: '#1E80E1',
               textShadow: '3px 3px 0px #FF5A1F, 6px 6px 0px #000000',
             }}
           >
             Zephvion
           </h1>
-          <div className="relative inline-block mt-[-10px]">
-            <p className="text-xs md:text-sm font-mono tracking-[0.4em] uppercase text-on-surface-variant silver-shimmer">
+          <div className="relative mt-[-5px] md:mt-[-10px] w-full px-2">
+            <p
+              className="font-mono uppercase text-on-surface-variant silver-shimmer"
+              style={{
+                fontSize: 'clamp(0.75rem, 4vw, 1rem)',
+                letterSpacing: '0.4em',
+                whiteSpace: 'nowrap',
+              }}
+            >
               Careers Admin
             </p>
           </div>

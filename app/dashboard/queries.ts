@@ -7,7 +7,7 @@ export async function getDashboardStats() {
   const { count: jobsCount, error: jobsError } = await supabase
     .from('jobs')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'OPEN')
+    .eq('is_active', true)
   if (jobsError) console.error('Jobs Query Error:', jobsError)
 
   // Fetch Applications count
@@ -29,8 +29,16 @@ export async function getDashboardStats() {
     .order('created_at', { ascending: false })
   if (candListError) console.error('Candidate List Error:', candListError)
 
+  // Fetch Inactive Jobs count
+  const { count: inactiveJobsCount, error: inactiveJobsError } = await supabase
+    .from('jobs')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', false)
+  if (inactiveJobsError) console.error('Inactive Jobs Query Error:', inactiveJobsError)
+
   return {
     jobsCount: jobsCount || 0,
+    inactiveJobsCount: inactiveJobsCount || 0,
     appsCount: appsCount || 0,
     candidatesCount: candidatesCount || 0,
     candidates: candidatesList || []

@@ -15,15 +15,26 @@ export default function Navbar({ isMenuOpen, setIsMenuOpen, navLinks }: NavbarPr
       {/* Large Device Layout */}
       <div className="hidden md:grid grid-cols-3 items-center w-full min-h-[60px]">
         {/* Left: Branded Title */}
-        <Link href="/dashboard" className="flex items-center w-fit">
+        <Link href="/dashboard" className="flex flex-col items-start w-fit justify-center">
           <div
-            className="font-display text-4xl lg:text-6xl tracking-tight lg:tracking-normal"
+            className="font-display text-4xl lg:text-[2.75rem] tracking-tight lg:tracking-normal leading-[0.8]"
             style={{
               color: '#1E80E1',
               textShadow: '2px 2px 0px #FF5A1F, 4px 4px 0px #000000',
             }}
           >
             ZEPHVION
+          </div>
+          <div className="relative mt-1 ml-0.5">
+            <p
+              className="font-mono uppercase text-on-surface-variant silver-shimmer text-[8px] lg:text-[9px]"
+              style={{
+                letterSpacing: '0.4em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Careers Admin
+            </p>
           </div>
         </Link>
 
@@ -45,7 +56,10 @@ export default function Navbar({ isMenuOpen, setIsMenuOpen, navLinks }: NavbarPr
           <div className="text-[10px] text-on-surface-variant uppercase font-mono tracking-widest opacity-70">
             Welcome Admin
           </div>
-          <form action={logoutAction}>
+          <form action={async () => {
+            localStorage.clear()
+            await logoutAction()
+          }}>
             <button className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors leading-none">
               Logout
             </button>
@@ -56,14 +70,27 @@ export default function Navbar({ isMenuOpen, setIsMenuOpen, navLinks }: NavbarPr
       {/* Mobile Device Layout */}
       <div className="md:hidden flex justify-between items-center w-full">
         {/* Logo */}
-        <Link href="/dashboard"
-          className="font-display text-4xl sm:text-5xl tracking-tight"
-          style={{
-            color: '#1E80E1',
-            textShadow: '1.5px 1.5px 0px #FF5A1F, 3px 3px 0px #000000',
-          }}
-        >
-          ZEPHVION
+        <Link href="/dashboard" className="flex flex-col items-start justify-center">
+          <div
+            className="font-display text-3xl sm:text-4xl tracking-tight leading-[0.8]"
+            style={{
+              color: '#1E80E1',
+              textShadow: '1.5px 1.5px 0px #FF5A1F, 3px 3px 0px #000000',
+            }}
+          >
+            ZEPHVION
+          </div>
+          <div className="relative mt-1 ml-0.5">
+            <p
+              className="font-mono uppercase text-on-surface-variant silver-shimmer text-[7px] sm:text-[8px]"
+              style={{
+                letterSpacing: '0.3em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Careers Admin
+            </p>
+          </div>
         </Link>
 
         {/* Mobile Menu Icon */}
@@ -83,9 +110,9 @@ export default function Navbar({ isMenuOpen, setIsMenuOpen, navLinks }: NavbarPr
         onClick={() => setIsMenuOpen(false)}
       />
       <div
-        className={`md:hidden fixed top-0 right-0 h-full w-72 bg-surface-lowest z-[60] shadow-2xl border-l border-outline-variant transition-transform duration-500 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`md:hidden fixed top-0 right-0 h-full w-[85vw] max-w-[280px] bg-surface-lowest z-[60] shadow-2xl border-l border-outline-variant transition-transform duration-500 ease-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        <div className="p-6 h-full flex flex-col">
+        <div className="p-5 md:p-6 h-full flex flex-col">
           <div className="flex justify-between items-center mb-10">
             <div className="text-[10px] font-mono text-on-surface-variant uppercase tracking-[0.3em]">
               Navigation
@@ -117,7 +144,10 @@ export default function Navbar({ isMenuOpen, setIsMenuOpen, navLinks }: NavbarPr
             <div className="text-[10px] text-on-surface-variant uppercase font-mono tracking-widest mb-4 opacity-70">
               Logged in as Admin
             </div>
-            <form action={logoutAction}>
+            <form action={async () => {
+              localStorage.clear()
+              await logoutAction()
+            }}>
               <button className="w-full text-xl font-display text-red-500 uppercase tracking-widest text-left hover:text-red-400 transition-colors">
                 Logout
               </button>

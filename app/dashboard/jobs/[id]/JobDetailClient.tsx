@@ -72,14 +72,14 @@ export default function JobDetailClient({ job }: JobDetailClientProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-outline-variant/30 pt-12">
               <div className="space-y-10">
                 <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-[0.4em] text-primary mb-4">Responsibilities</h3>
+                  <h3 className="text-xl font-display uppercase tracking-[0.1em] text-primary mb-6">Responsibilities</h3>
                   <div className="text-on-surface-variant text-sm leading-relaxed whitespace-pre-wrap font-sans opacity-90">
                     {job.responsibilities === 'N/A' ? 'No specific responsibilities listed.' : job.responsibilities}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-[0.4em] text-primary mb-4">Educational Requirements</h3>
+                  <h3 className="text-xl font-display uppercase tracking-[0.1em] text-primary mb-6">Educational Requirements</h3>
                   <div className="text-on-surface-variant text-sm leading-relaxed font-sans opacity-90">
                     {job.educational_requirements}
                   </div>
@@ -88,14 +88,14 @@ export default function JobDetailClient({ job }: JobDetailClientProps) {
 
               <div className="space-y-10">
                 <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-[0.4em] text-primary mb-4">Technical Requirements</h3>
+                  <h3 className="text-xl font-display uppercase tracking-[0.1em] text-primary mb-6">Technical Requirements</h3>
                   <div className="text-on-surface-variant text-sm leading-relaxed whitespace-pre-wrap font-sans opacity-90">
                     {job.technical_requirements === 'N/A' ? 'Standard industry requirements apply.' : job.technical_requirements}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-[0.4em] text-primary mb-4">Preferred Skills</h3>
+                  <h3 className="text-xl font-display uppercase tracking-[0.1em] text-primary mb-6">Preferred Skills</h3>
                   <div className="text-on-surface-variant text-sm leading-relaxed whitespace-pre-wrap font-sans opacity-90">
                     {job.preferred_skills}
                   </div>
