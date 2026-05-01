@@ -109,6 +109,33 @@
   background-size: 24px 24px;
 }
 
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--surface-container);
+}
+
+@layer utilities {
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.03),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
 /* Base Overrides */
 body {
   @apply bg-surface text-on-surface font-sans antialiased;
@@ -120,3 +147,13 @@ h1, h2, h3, h4, h5, h6 {
   @apply font-display tracking-[0.02em] uppercase;
 }
 
+@utility hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}

@@ -8,8 +8,8 @@ export async function getApplications() {
     .from('applications')
     .select(`
       *,
-      jobs ( job_title, job_reference_code ),
-      candidates ( full_name, email )
+      jobs ( * ),
+      candidates ( * )
     `)
     .order('created_at', { ascending: false })
 

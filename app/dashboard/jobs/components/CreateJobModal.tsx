@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface CreateJobModalProps {
   isOpen: boolean
@@ -10,6 +10,17 @@ interface CreateJobModalProps {
 }
 
 export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: CreateJobModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   const [formData, setFormData] = useState<any>({
     job_title: '',
     job_reference_code: '',
@@ -31,11 +42,16 @@ export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: C
   if (!isOpen) return null
 
   const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked, tagName } = e.target
     setFormData((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
+
+    if (tagName.toLowerCase() === 'textarea') {
+      e.target.style.height = 'auto'
+      e.target.style.height = e.target.scrollHeight + 'px'
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,8 +67,8 @@ export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: C
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       
-      <div className="glass glass-border p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-10 glow-primary shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className="flex justify-between items-center mb-10 sticky top-0 bg-surface-lowest/80 backdrop-blur-md z-10 py-4 border-b border-outline-variant/30">
+      <div className="glass glass-border p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto hide-scrollbar relative z-10 glow-primary shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="flex justify-between items-center mb-10 pb-4 border-b border-outline-variant/30">
           <div>
             <h3 className="text-3xl font-display uppercase tracking-tighter text-on-surface">
               Create New Position
@@ -196,52 +212,53 @@ export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: C
           {/* Content */}
           <div>
             <h4 className={sectionTitleClasses}>Detailed Content</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-              <div className="md:col-span-2">
-                <label className={labelClasses}>Educational Requirements <span className="text-primary">*</span></label>
-                <input 
-                  name="educational_requirements" 
-                  placeholder="e.g. B.E / B.Tech in Computer Science"
-                  value={formData.educational_requirements} 
-                  onChange={handleChange} 
-                  className={inputClasses} 
-                  required 
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-8">
               <div>
-                <label className={labelClasses}>Responsibilities</label>
+                <label className={labelClasses}>Responsibilities <span className="text-primary">*</span></label>
                 <textarea 
                   name="responsibilities" 
                   placeholder="Enter main job responsibilities..."
                   value={formData.responsibilities} 
                   onChange={handleChange} 
-                  className={`${inputClasses} h-32 resize-none`} 
+                  className={`${inputClasses} min-h-[100px] overflow-hidden resize-none`} 
+                  required 
                 />
               </div>
               <div>
-                <label className={labelClasses}>Technical Requirements</label>
+                <label className={labelClasses}>Technical Requirements <span className="text-primary">*</span></label>
                 <textarea 
                   name="technical_requirements" 
-                  placeholder="Enter required technical stack..."
+                  placeholder="Enter required technical skills..."
                   value={formData.technical_requirements} 
                   onChange={handleChange} 
-                  className={`${inputClasses} h-32 resize-none`} 
+                  className={`${inputClasses} min-h-[100px] overflow-hidden resize-none`} 
+                  required 
                 />
               </div>
-              <div className="md:col-span-2">
+              <div>
+                <label className={labelClasses}>Educational Requirements</label>
+                <textarea 
+                  name="educational_requirements" 
+                  placeholder="e.g. Bachelor's in Computer Science..."
+                  value={formData.educational_requirements} 
+                  onChange={handleChange} 
+                  className={`${inputClasses} min-h-[80px] overflow-hidden resize-none`} 
+                />
+              </div>
+              <div>
                 <label className={labelClasses}>Preferred Skills</label>
                 <textarea 
                   name="preferred_skills" 
                   placeholder="Enter additional desired skills..."
                   value={formData.preferred_skills} 
                   onChange={handleChange} 
-                  className={`${inputClasses} h-24 resize-none`} 
+                  className={`${inputClasses} min-h-[80px] overflow-hidden resize-none`} 
                 />
               </div>
             </div>
           </div>
 
-          <div className="sticky bottom-0 bg-surface-lowest/80 backdrop-blur-md pt-6 pb-2 border-t border-outline-variant/30 flex gap-4 mt-12">
+          <div className="pt-6 pb-2 border-t border-outline-variant/30 flex flex-col sm:flex-row gap-4 mt-12">
             <button
               type="button"
               onClick={onClose}

@@ -63,3 +63,37 @@ export async function createJob(data: any) {
   revalidatePath('/dashboard/jobs')
   return { success: true }
 }
+
+export async function deleteJob(jobId: number) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('jobs')
+    .delete()
+    .eq('id', jobId)
+
+  if (error) {
+    console.error('Error deleting job:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard/jobs')
+  return { success: true }
+}
+
+export async function toggleJobTrending(jobId: number, isTrending: boolean) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('jobs')
+    .update({ is_trending: isTrending })
+    .eq('id', jobId)
+
+  if (error) {
+    console.error('Error toggling job trending status:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard/jobs')
+  return { success: true }
+}

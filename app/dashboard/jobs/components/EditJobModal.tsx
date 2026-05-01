@@ -14,6 +14,17 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
   const [formData, setFormData] = useState<any>({})
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  useEffect(() => {
     if (job) {
       setFormData({ ...job })
     }
@@ -22,11 +33,16 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
   if (!isOpen) return null
 
   const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked, tagName } = e.target
     setFormData((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
+
+    if (tagName.toLowerCase() === 'textarea') {
+      e.target.style.height = 'auto'
+      e.target.style.height = e.target.scrollHeight + 'px'
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,8 +57,8 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       
-      <div className="glass glass-border p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-10 glow-primary shadow-2xl">
-        <div className="flex justify-between items-center mb-10 sticky top-0 bg-surface-lowest/80 backdrop-blur-md z-10 py-2 border-b border-outline-variant/30">
+      <div className="glass glass-border p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-y-auto hide-scrollbar relative z-10 glow-primary shadow-2xl">
+        <div className="flex justify-between items-center mb-10 pb-2 border-b border-outline-variant/30">
           <h3 className="text-3xl font-display uppercase tracking-tighter text-on-surface">
             Edit Job Position
           </h3>
@@ -103,15 +119,15 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
           <div>
             <div>
               <label className={labelClasses}>Responsibilities</label>
-              <textarea name="responsibilities" value={formData.responsibilities || ''} onChange={handleChange} className={`${inputClasses} h-24 resize-none`} />
+              <textarea name="responsibilities" value={formData.responsibilities || ''} onChange={handleChange} className={`${inputClasses} min-h-[100px] overflow-hidden resize-none`} />
             </div>
             <div>
               <label className={labelClasses}>Technical Requirements</label>
-              <textarea name="technical_requirements" value={formData.technical_requirements || ''} onChange={handleChange} className={`${inputClasses} h-24 resize-none`} />
+              <textarea name="technical_requirements" value={formData.technical_requirements || ''} onChange={handleChange} className={`${inputClasses} min-h-[100px] overflow-hidden resize-none`} />
             </div>
             <div>
               <label className={labelClasses}>Preferred Skills</label>
-              <textarea name="preferred_skills" value={formData.preferred_skills || ''} onChange={handleChange} className={`${inputClasses} h-24 resize-none`} />
+              <textarea name="preferred_skills" value={formData.preferred_skills || ''} onChange={handleChange} className={`${inputClasses} min-h-[80px] overflow-hidden resize-none`} />
             </div>
             <div>
               <label className={labelClasses}>Educational Requirements</label>
@@ -119,7 +135,7 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
             </div>
           </div>
 
-          <div className="md:col-span-2 mt-10 pt-6 border-t border-outline-variant/30 flex gap-4">
+          <div className="md:col-span-2 mt-10 pt-6 border-t border-outline-variant/30 flex flex-col sm:flex-row gap-4">
             <button
               type="button"
               onClick={onClose}
