@@ -156,4 +156,50 @@ h1, h2, h3, h4, h5, h6 {
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
+
+  /* Legal Modal Classes */
+  .lm-body-text {
+    @apply font-mono text-[10px] leading-relaxed opacity-60 mb-4 uppercase tracking-wider;
+    color: var(--on-surface);
+  }
+  .lm-section-title {
+    @apply font-mono text-[11px] font-bold mt-8 mb-4 tracking-[.2em] uppercase;
+    color: var(--primary);
+  }
+  .lm-li {
+    @apply font-mono text-[10px] leading-relaxed opacity-50 mb-2 uppercase tracking-wide flex items-start gap-3;
+  }
+  .lm-li::before {
+    content: ">>";
+    @apply text-primary opacity-40 shrink-0;
+  }
+  .lm-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+  .lm-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .lm-scroll::-webkit-scrollbar-thumb {
+    background: rgba(163, 201, 255, 0.1);
+    border-radius: 2px;
+  }
+}
+
+@theme inline {
+  @keyframes fscan {
+    0% { left: -120px; }
+    100% { left: 100%; }
+  }
+  @keyframes lm-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes lm-slide {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes lm-scan {
+    0% { left: -100px; }
+    100% { left: 100%; }
+  }
 }

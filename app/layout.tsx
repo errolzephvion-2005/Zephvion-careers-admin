@@ -25,6 +25,8 @@ export const metadata: Metadata = {
 
 };
 
+import Footer from "@/shared/components/Footer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,7 +38,10 @@ export default function RootLayout({
       className={`${bebasNeue.variable} ${dmSans.variable} ${dmMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-surface text-on-surface">
-        {children}
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+        <Footer />
       </body>
     </html>
   );
