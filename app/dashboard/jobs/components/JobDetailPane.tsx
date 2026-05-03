@@ -1,7 +1,9 @@
 import React from 'react';
 
+import { Job } from '@/shared/types';
+
 interface JobDetailPaneProps {
-  selectedJob: any
+  selectedJob: Job | null
   onClose: () => void
   onOpenMobileList: () => void
 }

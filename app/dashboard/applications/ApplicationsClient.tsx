@@ -3,9 +3,10 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/shared/components/Navbar'
+import { Application } from '@/shared/types'
 
 interface ApplicationsClientProps {
-  applications: any[]
+  applications: Application[]
 }
 
 export default function ApplicationsClient({ applications }: ApplicationsClientProps) {
@@ -37,7 +38,7 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
 
   // Group applications by candidate email + job reference code
   const { primaryApplications } = useMemo(() => {
-    const grouped: Record<string, any[]> = {}
+    const grouped: Record<string, Application[]> = {}
     applications.forEach(app => {
       const key = `${app.candidates?.email}-${app.jobs?.job_reference_code}`
       if (!grouped[key]) {
@@ -78,11 +79,11 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
     })
   }, [primaryApplications, searchQuery])
 
-  const openDetails = (app: any) => {
+  const openDetails = (app: Application) => {
     // Pass the current search state forward so it can be passed back later
     const params = new URLSearchParams()
     if (searchQuery) params.set('search', searchQuery)
-    params.set('fromId', app.id)
+    params.set('fromId', app.id.toString())
     
     router.push(`/dashboard/applications/${app.id}?${params.toString()}`)
   }

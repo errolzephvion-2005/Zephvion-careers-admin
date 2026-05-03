@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 
+import { Job } from '@/shared/types'
+
 interface CreateJobModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (formData: any) => void
+  onSave: (formData: Partial<Job>) => void
   isPending: boolean
 }
 
@@ -21,7 +23,7 @@ export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: C
     }
   }, [isOpen])
 
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<Partial<Job>>({
     job_title: '',
     job_reference_code: '',
     work_experience: '',
@@ -41,9 +43,11 @@ export default function CreateJobModal({ isOpen, onClose, onSave, isPending }: C
 
   if (!isOpen) return null
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked, tagName } = e.target
-    setFormData((prev: any) => ({
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type, tagName } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))

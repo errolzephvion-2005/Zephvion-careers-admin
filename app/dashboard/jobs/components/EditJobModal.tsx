@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from 'react'
 
+import { Job } from '@/shared/types'
+
 interface EditJobModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (formData: any) => void
-  job: any
+  onSave: (formData: Job) => void
+  job: Job | null
   isPending: boolean
 }
 
 export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }: EditJobModalProps) {
-  const [formData, setFormData] = useState<any>({})
+  const [formData, setFormData] = useState<Partial<Job>>({})
 
   useEffect(() => {
     if (isOpen) {
@@ -32,9 +34,11 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
 
   if (!isOpen) return null
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked, tagName } = e.target
-    setFormData((prev: any) => ({
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type, tagName } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
@@ -47,7 +51,7 @@ export default function EditJobModal({ isOpen, onClose, onSave, job, isPending }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    onSave(formData as Job)
   }
 
   const inputClasses = "w-full bg-surface-lowest border-b border-outline-variant focus:border-primary focus:outline-none p-3 text-sm text-on-surface transition-all font-mono mb-4"

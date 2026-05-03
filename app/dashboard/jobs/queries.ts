@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
+import { Job } from '@/shared/types'
 
-export async function getJobs() {
+export async function getJobs(): Promise<Job[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('jobs')
@@ -15,7 +16,7 @@ export async function getJobs() {
   return data
 }
 
-export async function getJobById(id: string) {
+export async function getJobById(id: string): Promise<Job | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('jobs')

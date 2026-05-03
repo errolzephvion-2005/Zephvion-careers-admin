@@ -1,13 +1,15 @@
 import React from 'react'
 
+import { Job } from '@/shared/types'
+
 interface JobCardProps {
-  job: any
+  job: Job
   isSelected?: boolean
-  onSelect: (job: any) => void
-  onToggle: (job: any) => void
-  onEdit: (job: any) => void
-  onDelete: (job: any) => void
-  onToggleTrending: (job: any) => void
+  onSelect: (job: Job) => void
+  onToggle: (job: Job) => void
+  onEdit: (job: Job) => void
+  onDelete: (job: Job) => void
+  onToggleTrending: (job: Job) => void
 }
 
 export default function JobCard({ job, isSelected, onSelect, onToggle, onEdit, onDelete, onToggleTrending }: JobCardProps) {

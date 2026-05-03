@@ -2,8 +2,9 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { Job } from '@/shared/types'
 
-export async function updateJob(jobId: number, data: any) {
+export async function updateJob(jobId: number, data: Partial<Job>) {
   const supabase = await createAdminClient()
 
   // Remove id from the update payload to avoid Supabase errors
@@ -42,7 +43,7 @@ export async function toggleJobActive(jobId: number, isActive: boolean) {
   return { success: true }
 }
 
-export async function createJob(data: any) {
+export async function createJob(data: Partial<Job>) {
   const supabase = await createAdminClient()
 
   // Internal fields handled by system

@@ -4,15 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import Navbar from '@/shared/components/Navbar'
+import { Application } from '@/shared/types'
 
 interface ApplicationDetailsClientProps {
-  appGroup: any[]
+  appGroup: Application[]
 }
 
 export default function ApplicationDetailsClient({ appGroup }: ApplicationDetailsClientProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isJobExpanded, setIsJobExpanded] = useState(false)
-  const [expandedResponseIds, setExpandedResponseIds] = useState<Record<string, boolean>>({})
+  const [expandedResponseIds, setExpandedResponseIds] = useState<Record<string | number, boolean>>({})
 
   const searchParams = useSearchParams()
   const search = searchParams.get('search') || ''
@@ -20,10 +21,10 @@ export default function ApplicationDetailsClient({ appGroup }: ApplicationDetail
 
   const mainApp = appGroup[0]
   const otherResponses = appGroup.slice(1)
-  const candidate = mainApp.candidates || {}
-  const job = mainApp.jobs || {}
+  const candidate = mainApp.candidates || {} as any // as any used briefly for mapping but structure is now typed
+  const job = mainApp.jobs || {} as any
 
-  const toggleResponse = (id: string) => {
+  const toggleResponse = (id: string | number) => {
     setExpandedResponseIds(prev => ({ ...prev, [id]: !prev[id] }))
   }
 
@@ -258,8 +259,8 @@ export default function ApplicationDetailsClient({ appGroup }: ApplicationDetail
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <DocumentActions url={mainApp.resume_url} label="Resume" />
-                <DocumentActions url={mainApp.cover_letter_url || mainApp.cover_letter} label="Cover Letter" />
+                <DocumentActions url={mainApp.resume_url || ""} label="Resume" />
+                <DocumentActions url={mainApp.cover_letter_url || mainApp.cover_letter || ""} label="Cover Letter" />
                 
                 {(!mainApp.resume_url && !mainApp.cover_letter_url && !mainApp.cover_letter) && (
                   <div className="col-span-full p-4 border border-outline-variant/30 text-center text-on-surface-variant font-mono text-xs uppercase tracking-widest">
@@ -278,7 +279,7 @@ export default function ApplicationDetailsClient({ appGroup }: ApplicationDetail
                 </h3>
                 
                 <div className="flex flex-col gap-4">
-                  {otherResponses.map((oldApp: any) => {
+                  {otherResponses.map((oldApp: Application) => {
                     const isExpanded = expandedResponseIds[oldApp.id]
                     return (
                       <div key={oldApp.id} className="border border-outline-variant bg-surface-low overflow-hidden">
@@ -319,8 +320,8 @@ export default function ApplicationDetailsClient({ appGroup }: ApplicationDetail
                                 Documents
                               </span>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <DocumentActions url={oldApp.resume_url} label="Resume" />
-                                <DocumentActions url={oldApp.cover_letter_url || oldApp.cover_letter} label="Cover Letter" />
+                                <DocumentActions url={oldApp.resume_url || ""} label="Resume" />
+                                <DocumentActions url={oldApp.cover_letter_url || oldApp.cover_letter || ""} label="Cover Letter" />
                               </div>
                             </div>
                           </div>

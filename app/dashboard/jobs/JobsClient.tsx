@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Navbar from '@/shared/components/Navbar'
+import { Job } from '@/shared/types'
 import { createJob, toggleJobActive, updateJob, deleteJob, toggleJobTrending } from './actions'
 import ToggleConfirmModal from './components/ToggleConfirmModal'
 import EditJobModal from './components/EditJobModal'
@@ -15,7 +16,7 @@ import JobsFilterBar from './components/JobsFilterBar'
 import JobDetailPane from './components/JobDetailPane'
 
 interface JobsClientProps {
-  jobs: any[]
+  jobs: Job[]
 }
 
 export default function JobsClient({ jobs }: JobsClientProps) {
@@ -23,16 +24,16 @@ export default function JobsClient({ jobs }: JobsClientProps) {
   const [isPending, startTransition] = useTransition()
 
   // Master-Detail State
-  const [selectedJob, setSelectedJob] = useState<any | null>(null)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [isMobileListOpen, setIsMobileListOpen] = useState(false)
 
   // Modal States
   const [isAddingJob, setIsAddingJob] = useState(false)
-  const [editingJob, setEditingJob] = useState<any>(null)
-  const [togglingJob, setTogglingJob] = useState<any>(null)
-  const [deletingJob, setDeletingJob] = useState<any>(null)
-  const [trendingJob, setTrendingJob] = useState<any>(null)
-  const [pendingChanges, setPendingChanges] = useState<{ job: any, changes: any[] } | null>(null)
+  const [editingJob, setEditingJob] = useState<Job | null>(null)
+  const [togglingJob, setTogglingJob] = useState<Job | null>(null)
+  const [deletingJob, setDeletingJob] = useState<Job | null>(null)
+  const [trendingJob, setTrendingJob] = useState<Job | null>(null)
+  const [pendingChanges, setPendingChanges] = useState<{ job: Job, changes: any[] } | null>(null)
   const [finalSummary, setFinalSummary] = useState<any[] | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
@@ -48,7 +49,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
     { label: 'Applications', active: false, href: '/dashboard/applications' },
   ]
 
-  const handleCreateJob = (data: any) => {
+  const handleCreateJob = (data: Partial<Job>) => {
     startTransition(async () => {
       const result = await createJob(data)
       if (result.success) {
@@ -112,7 +113,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
     })
   }
 
-  const handleInitiateReview = (updatedData: any) => {
+  const handleInitiateReview = (updatedData: Job) => {
     if (!editingJob) return
 
     // Calculate changes
