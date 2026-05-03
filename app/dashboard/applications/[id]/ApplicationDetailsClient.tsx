@@ -152,10 +152,16 @@ export default function ApplicationDetailsClient({ appGroup }: ApplicationDetail
                 </div>
 
                 {/* Social Links (GitHub / LinkedIn) */}
-                {(candidate.github || candidate.linkedin) && (
-                  <div className="p-4 sm:p-6 md:p-8 border-b border-outline-variant/30 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                    <DocumentActions url={candidate.github} label="GitHub Profile" />
-                    <DocumentActions url={candidate.linkedin} label="LinkedIn Profile" />
+                {( (job.job_type !== 'non-technical' && candidate.github) || candidate.linkedin) && (
+                  <div className={`p-4 sm:p-6 md:p-8 border-b border-outline-variant/30 grid grid-cols-1 gap-4 md:gap-8 ${
+                    (job.job_type !== 'non-technical' && candidate.github && candidate.linkedin) ? 'md:grid-cols-2' : 'md:grid-cols-1'
+                  }`}>
+                    {job.job_type !== 'non-technical' && candidate.github && (
+                      <DocumentActions url={candidate.github} label="GitHub Profile" />
+                    )}
+                    {candidate.linkedin && (
+                      <DocumentActions url={candidate.linkedin} label="LinkedIn Profile" />
+                    )}
                   </div>
                 )}
 

@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function updateJob(jobId: number, data: any) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   // Remove id from the update payload to avoid Supabase errors
   const { id, created_at, ...updateData } = data
@@ -25,7 +25,7 @@ export async function updateJob(jobId: number, data: any) {
 }
 
 export async function toggleJobActive(jobId: number, isActive: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { error } = await supabase
     .from('jobs')
@@ -43,7 +43,7 @@ export async function toggleJobActive(jobId: number, isActive: boolean) {
 }
 
 export async function createJob(data: any) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   // Internal fields handled by system
   const jobData = {
@@ -65,7 +65,7 @@ export async function createJob(data: any) {
 }
 
 export async function deleteJob(jobId: number) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { error } = await supabase
     .from('jobs')
@@ -82,7 +82,7 @@ export async function deleteJob(jobId: number) {
 }
 
 export async function toggleJobTrending(jobId: number, isTrending: boolean) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { error } = await supabase
     .from('jobs')

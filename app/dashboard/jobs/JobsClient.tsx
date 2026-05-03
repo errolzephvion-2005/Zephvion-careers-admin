@@ -7,6 +7,7 @@ import ToggleConfirmModal from './components/ToggleConfirmModal'
 import EditJobModal from './components/EditJobModal'
 import CreateJobModal from './components/CreateJobModal'
 import SummaryModal from './components/SummaryModal'
+import ErrorModal from './components/ErrorModal'
 import ActionConfirmModal from './components/ActionConfirmModal'
 import Toast from './components/Toast'
 import JobCard from './components/JobCard'
@@ -33,6 +34,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
   const [trendingJob, setTrendingJob] = useState<any>(null)
   const [pendingChanges, setPendingChanges] = useState<{ job: any, changes: any[] } | null>(null)
   const [finalSummary, setFinalSummary] = useState<any[] | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
 
   // Filter States
@@ -53,7 +55,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         setIsAddingJob(false)
         setToast({ message: 'JOB POSITION PUBLISHED SUCCESSFULLY', type: 'success' })
       } else {
-        setToast({ message: 'PUBLISH FAILED: ' + result.error, type: 'error' })
+        setErrorMessage(result.error || 'AN UNEXPECTED ERROR OCCURRED WHILE PUBLISHING THE POSITION')
       }
     })
   }
@@ -70,7 +72,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         }
         setToast({ message: `JOB ${!togglingJob.is_active ? 'ENABLED' : 'DISABLED'} SUCCESSFULLY`, type: 'success' })
       } else {
-        setToast({ message: 'FAILED TO UPDATE STATUS: ' + result.error, type: 'error' })
+        setErrorMessage(result.error || 'FAILED TO UPDATE JOB STATUS')
       }
     })
   }
@@ -87,7 +89,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         setDeletingJob(null)
         setToast({ message: 'JOB DELETED SUCCESSFULLY', type: 'success' })
       } else {
-        setToast({ message: 'FAILED TO DELETE JOB: ' + result.error, type: 'error' })
+        setErrorMessage(result.error || 'FAILED TO DELETE JOB')
       }
     })
   }
@@ -105,7 +107,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         setTrendingJob(null)
         setToast({ message: `JOB ${newStatus ? 'MARKED AS TRENDING' : 'REMOVED FROM TRENDING'}`, type: 'success' })
       } else {
-        setToast({ message: 'FAILED TO UPDATE TRENDING STATUS: ' + result.error, type: 'error' })
+        setErrorMessage(result.error || 'FAILED TO UPDATE TRENDING STATUS')
       }
     })
   }
@@ -151,7 +153,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         }
         setToast({ message: 'JOB UPDATED SUCCESSFULLY', type: 'success' })
       } else {
-        setToast({ message: 'UPDATE FAILED: ' + result.error, type: 'error' })
+        setErrorMessage(result.error || 'UPDATE FAILED')
       }
     })
   }
@@ -362,6 +364,13 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         onClose={() => setIsAddingJob(false)}
         onSave={handleCreateJob}
         isPending={isPending}
+      />
+
+      <ErrorModal 
+        isOpen={!!errorMessage}
+        onClose={() => setErrorMessage(null)}
+        title="Publish Failed"
+        message={errorMessage || ''}
       />
 
       <ToggleConfirmModal

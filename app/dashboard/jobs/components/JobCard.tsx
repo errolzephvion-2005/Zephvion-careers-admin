@@ -16,7 +16,7 @@ export default function JobCard({ job, isSelected, onSelect, onToggle, onEdit, o
       className={`glass p-6 flex flex-col relative group transition-all duration-300 border ${!job.is_active ? 'opacity-60 grayscale-[0.5]' : ''} ${isSelected ? 'border-primary bg-primary/10 shadow-[0_0_20px_rgba(163,201,255,0.15)]' : 'border-outline-variant hover:bg-surface-lowest/50'}`}
     >
       {/* Top Rounded Action Bar */}
-      <div className="flex items-center justify-between bg-surface-lowest/80 rounded-full px-4 py-2.5 border border-outline-variant/50 mb-5 relative z-10 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between bg-surface-lowest/80 rounded-2xl md:rounded-full px-4 py-2.5 border border-outline-variant/50 mb-5 relative z-10 shadow-sm gap-y-2">
         <label className="flex items-center gap-2 cursor-pointer group" onClick={(e) => e.stopPropagation()}>
           <div className="relative flex items-center justify-center">
             <input 
@@ -34,7 +34,7 @@ export default function JobCard({ job, isSelected, onSelect, onToggle, onEdit, o
           <span className="text-[9px] font-mono uppercase tracking-widest text-on-surface-variant group-hover:text-primary transition-colors select-none">Trending</span>
         </label>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 justify-end flex-1 min-w-fit">
           {/* Toggle Switch */}
           <button
             onClick={(e) => {
@@ -48,37 +48,39 @@ export default function JobCard({ job, isSelected, onSelect, onToggle, onEdit, o
             <div className={`absolute top-[2px] w-2.5 h-2.5 rounded-full transition-all duration-300 ${job.is_active ? 'left-[18px] bg-green-500' : 'left-[2px] bg-red-500'}`} />
           </button>
 
-          <div className="w-[1px] h-3 bg-outline-variant/50"></div>
+          <div className="w-[1px] h-3 bg-outline-variant/50 max-[260px]:hidden"></div>
 
-          {/* Edit Icon */}
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onEdit(job)
-            }}
-            className="text-on-surface-variant hover:text-primary transition-colors"
-            title="Edit Job"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Edit Icon */}
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onEdit(job)
+              }}
+              className="text-on-surface-variant hover:text-primary transition-colors"
+              title="Edit Job"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
 
-          {/* Delete Icon */}
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onDelete(job)
-            }}
-            className="text-on-surface-variant hover:text-red-500 transition-colors"
-            title="Delete Job"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+            {/* Delete Icon */}
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onDelete(job)
+              }}
+              className="text-on-surface-variant hover:text-red-500 transition-colors"
+              title="Delete Job"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
