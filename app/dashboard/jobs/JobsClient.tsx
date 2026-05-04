@@ -188,7 +188,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
       />
 
       <section className="grid-bg flex-1 flex flex-col mx-auto w-full p-4 md:p-8 max-w-7xl">
-        
+
         {/* Header Block - Dynamic Spacing */}
         <div className={`flex flex-col md:flex-row md:items-center ${selectedJob ? 'gap-4 md:gap-6 mb-6 shrink-0' : 'gap-6 mb-12'}`}>
           <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -272,10 +272,10 @@ export default function JobsClient({ jobs }: JobsClientProps) {
              SPLIT VIEW (SELECTED JOB)
              ========================================= */
           <div className="flex gap-6 flex-1 pb-4 items-stretch relative">
-            
+
             {/* Mobile Overlay */}
             {isMobileListOpen && (
-              <div 
+              <div
                 className="fixed inset-0 bg-surface/80 backdrop-blur-sm z-40 md:hidden"
                 onClick={() => setIsMobileListOpen(false)}
               />
@@ -293,7 +293,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
                 {/* Mobile Header with Close Button */}
                 <div className="md:hidden flex items-center justify-between mb-2 pb-2 border-b border-outline-variant/30">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant pl-2">Available Jobs</span>
-                  <button 
+                  <button
                     onClick={() => setIsMobileListOpen(false)}
                     className="p-2 bg-surface-lowest border border-outline-variant/50 text-on-surface-variant hover:text-primary transition-colors rounded-sm"
                   >
@@ -354,7 +354,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
               onClose={() => setSelectedJob(null)}
               onOpenMobileList={() => setIsMobileListOpen(true)}
             />
-            
+
           </div>
         )}
       </section>
@@ -367,7 +367,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
         isPending={isPending}
       />
 
-      <ErrorModal 
+      <ErrorModal
         isOpen={!!errorMessage}
         onClose={() => setErrorMessage(null)}
         title="Publish Failed"
