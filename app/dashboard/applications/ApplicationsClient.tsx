@@ -4,6 +4,12 @@ import { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/shared/components/Navbar'
 import { Application } from '@/shared/types'
+import { exportToExcel } from './utils/exportUtils'
+import { deleteApplications } from './actions'
+import ActionConfirmModal from './components/ActionConfirmModal'
+import ApplicationsToolbar from './components/ApplicationsToolbar'
+import ApplicationTable from './components/ApplicationTable'
+import ApplicationMobileList from './components/ApplicationMobileList'
 
 interface ApplicationsClientProps {
   applications: Application[]
@@ -15,6 +21,17 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
   
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(initialSearch)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [sortBy, setSortBy] = useState<'date' | 'job'>('date')
+  const [jobFilter, setJobFilter] = useState<string | null>(null)
+  const [jobSearchQuery, setJobSearchQuery] = useState('')
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [isOrderToggleVisible, setIsOrderToggleVisible] = useState(false)
+  const [isJobFilterVisible, setIsJobFilterVisible] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
   // Handle auto-scrolling to an anchored application if returning from details
@@ -25,7 +42,7 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
       if (element) {
         setTimeout(() => {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 100) // slight delay to allow rendering
+        }, 100)
       }
     }
   }, [])
@@ -41,9 +58,7 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
     const grouped: Record<string, Application[]> = {}
     applications.forEach(app => {
       const key = `${app.candidates?.email}-${app.jobs?.job_reference_code}`
-      if (!grouped[key]) {
-        grouped[key] = []
-      }
+      if (!grouped[key]) grouped[key] = []
       grouped[key].push(app)
     })
 
@@ -51,40 +66,162 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
     return { primaryApplications: primary }
   }, [applications])
 
-  // Filter based on search query
+  // Filter based on search query and job filter
   const filteredApplications = useMemo(() => {
-    if (!searchQuery.trim()) return primaryApplications
+    let result = primaryApplications
 
-    const query = searchQuery.toLowerCase()
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(app => {
+        const checkObj = (obj: any, excludeKeys: string[] = []) => {
+          if (!obj) return false
+          return Object.entries(obj).some(([key, val]) => {
+            if (excludeKeys.includes(key)) return false
+            if (typeof val === 'string') return val.toLowerCase().includes(query)
+            return false
+          })
+        }
+        return checkObj(app, ['resume_url', 'cover_letter']) || checkObj(app.candidates) || checkObj(app.jobs)
+      })
+    }
 
-    return primaryApplications.filter(app => {
-      // Helper to check object values excluding specific keys
-      const checkObj = (obj: any, excludeKeys: string[] = []) => {
-        if (!obj) return false
-        return Object.entries(obj).some(([key, val]) => {
-          if (excludeKeys.includes(key)) return false
-          if (typeof val === 'string') {
-            return val.toLowerCase().includes(query)
-          }
-          return false
-        })
+    if (jobFilter) {
+      result = result.filter(app => app.jobs?.job_title === jobFilter)
+    }
+
+    return result
+  }, [primaryApplications, searchQuery, jobFilter])
+
+  // Extract unique jobs for filtering
+  const availableJobTitles = useMemo(() => {
+    const jobs = applications
+      .map(app => app.jobs?.job_title)
+      .filter((title): title is string => !!title)
+    return Array.from(new Set(jobs)).sort()
+  }, [applications])
+
+  // Sort applications
+  const sortedApplications = useMemo(() => {
+    const list = [...filteredApplications]
+    list.sort((a, b) => {
+      let comparison = 0
+      if (sortBy === 'date') {
+        comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      } else {
+        const jobA = a.jobs?.job_title || ''
+        const jobB = b.jobs?.job_title || ''
+        comparison = jobA.localeCompare(jobB)
+        // Secondary sort by date if jobs are same
+        if (comparison === 0) {
+          comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        }
       }
-
-      // Check application fields excluding URLs
-      const appMatch = checkObj(app, ['resume_url', 'cover_letter'])
-      const candidateMatch = checkObj(app.candidates)
-      const jobMatch = checkObj(app.jobs)
-
-      return appMatch || candidateMatch || jobMatch
+      return sortOrder === 'desc' ? comparison : -comparison
     })
-  }, [primaryApplications, searchQuery])
+    return list
+  }, [filteredApplications, sortBy, sortOrder])
+
+  const toggleSelect = (id: number) => {
+    // Find the application to get its group context (candidate + job)
+    const targetApp = applications.find(a => a.id === id);
+    if (!targetApp) return;
+
+    // Find all IDs in the same group (same candidate and same job)
+    const relatedIds = applications
+      .filter(a => a.candidate_id === targetApp.candidate_id && a.job_id === targetApp.job_id)
+      .map(a => a.id);
+
+    setSelectedIds(prev => {
+      const isSelected = prev.includes(id);
+      if (isSelected) {
+        // Remove all related IDs
+        return prev.filter(itemId => !relatedIds.includes(itemId));
+      } else {
+        // Add all related IDs (merge and deduplicate)
+        return Array.from(new Set([...prev, ...relatedIds]));
+      }
+    });
+  };
+
+  const toggleSelectAll = () => {
+    // Get all primary application IDs currently visible
+    const visiblePrimaryIds = sortedApplications.map(app => app.id);
+    
+    // Find all IDs in the full applications list that belong to these visible groups
+    const visibleGroupIds = applications
+      .filter(app => 
+        sortedApplications.some(sa => 
+          sa.candidate_id === app.candidate_id && sa.job_id === app.job_id
+        )
+      )
+      .map(app => app.id);
+
+    const allVisibleSelected = visibleGroupIds.length > 0 && 
+                               visibleGroupIds.every(id => selectedIds.includes(id));
+
+    if (allVisibleSelected) {
+      // Unselect only the visible groups
+      setSelectedIds(prev => prev.filter(id => !visibleGroupIds.includes(id)));
+    } else {
+      // Select all IDs belonging to visible groups
+      setSelectedIds(prev => Array.from(new Set([...prev, ...visibleGroupIds])));
+    }
+  };
+
+  const handleResetSort = () => {
+    setSortBy('date')
+    setSortOrder('desc')
+    setJobFilter(null)
+    setJobSearchQuery('')
+    setIsOrderToggleVisible(false)
+    setIsJobFilterVisible(false)
+  }
+
+  const handleSortChange = (newSort: 'date' | 'job') => {
+    setSortBy(newSort)
+    if (newSort === 'date') {
+      setIsOrderToggleVisible(true)
+      setIsJobFilterVisible(false)
+    } else {
+      setIsOrderToggleVisible(false)
+      setIsJobFilterVisible(true)
+    }
+  }
+
+  const handleExport = async (format: 'csv' | 'xlsx') => {
+    const dataToExport = selectedIds.length > 0 
+      ? sortedApplications.filter(app => selectedIds.includes(app.id))
+      : sortedApplications;
+    
+    await exportToExcel(dataToExport, format);
+    setIsExportMenuOpen(false);
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (selectedIds.length === 0) return
+    
+    setIsDeleting(true)
+    try {
+      const result = await deleteApplications(selectedIds)
+      
+      if (result.success) {
+        setSelectedIds([])
+        setIsDeleteModalOpen(false)
+        router.refresh()
+      } else {
+        alert(`Error deleting applications: ${result.error}`)
+      }
+    } catch (err) {
+      alert('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   const openDetails = (app: Application) => {
-    // Pass the current search state forward so it can be passed back later
     const params = new URLSearchParams()
     if (searchQuery) params.set('search', searchQuery)
     params.set('fromId', app.id.toString())
-    
     router.push(`/dashboard/applications/${app.id}?${params.toString()}`)
   }
 
@@ -103,131 +240,63 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
             <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tighter text-on-surface break-words">Applications</h2>
             <div className="hidden min-[400px]:block h-[2px] flex-1 bg-outline-variant opacity-30" />
             <div className="text-primary font-mono text-sm tracking-widest uppercase whitespace-nowrap">
-              {filteredApplications.length} Received
+              {sortedApplications.length} Received
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-8">
-            <div className="relative glass glass-border p-2">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search applications by name, job title, email, phone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-transparent border-none focus:outline-none text-on-surface font-mono text-sm placeholder:text-on-surface-variant/50"
-              />
-            </div>
-          </div>
+          <ApplicationsToolbar 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCount={selectedIds.length}
+            totalVisible={sortedApplications.length}
+            onToggleSelectAll={toggleSelectAll}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            jobFilter={jobFilter}
+            setJobFilter={setJobFilter}
+            jobSearchQuery={jobSearchQuery}
+            setJobSearchQuery={setJobSearchQuery}
+            availableJobTitles={availableJobTitles}
+            isSortMenuOpen={isSortMenuOpen}
+            setIsSortMenuOpen={setIsSortMenuOpen}
+            isExportMenuOpen={isExportMenuOpen}
+            setIsExportMenuOpen={setIsExportMenuOpen}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            isOrderToggleVisible={isOrderToggleVisible}
+            onResetSort={handleResetSort}
+            onSortChange={handleSortChange}
+            onDeleteClick={() => setIsDeleteModalOpen(true)}
+            onExport={handleExport}
+          />
 
-          {/* Desktop Table View */}
-          <div className="hidden md:block overflow-hidden glass glass-border rounded-lg">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-outline-variant bg-surface-lowest">
-                  <th className="p-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">Candidate</th>
-                  <th className="p-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">Job Title</th>
-                  <th className="p-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">Applied Date</th>
-                  <th className="p-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">Status</th>
-                  <th className="p-4 text-[10px] font-mono uppercase tracking-widest text-on-surface-variant text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/30">
-                {filteredApplications.length > 0 ? filteredApplications.map((app) => (
-                  <tr key={app.id} id={`app-${app.id}`} className="hover:bg-surface-low/50 transition-colors group">
-                    <td className="p-4">
-                      <div className="text-sm font-medium text-on-surface">{app.candidates?.full_name}</div>
-                      <div className="text-[10px] font-mono text-on-surface-variant">{app.candidates?.email}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm text-on-surface font-medium">{app.jobs?.job_title}</div>
-                      <div className="text-[10px] font-mono text-on-surface-variant">{app.jobs?.job_reference_code}</div>
-                    </td>
-                    <td className="p-4 text-xs font-mono text-on-surface-variant">
-                      {new Date(app.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-widest border ${
-                        app.status === 'applied' ? 'border-primary/30 text-primary bg-primary/5' : 
-                        app.status === 'reviewed' ? 'border-blue-500/30 text-blue-500 bg-blue-500/5' :
-                        'border-on-surface-variant/30 text-on-surface-variant'
-                      }`}>
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <button 
-                        onClick={() => openDetails(app)}
-                        className="text-[10px] font-mono uppercase tracking-widest text-primary hover:underline decoration-primary/30 underline-offset-4"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-on-surface-variant font-mono text-sm">
-                      No applications found matching "{searchQuery}"
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <ApplicationTable 
+            applications={sortedApplications}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onViewDetails={openDetails}
+            searchQuery={searchQuery}
+          />
 
-          {/* Mobile Card View */}
-          <div className="md:hidden flex flex-col gap-4">
-            {filteredApplications.length > 0 ? filteredApplications.map((app) => (
-              <div key={app.id} id={`app-${app.id}`} className="glass glass-border p-5 flex flex-col gap-4 relative hover:bg-surface-lowest/50 transition-colors">
-                {/* Candidate Info & Status */}
-                <div className="flex flex-col-reverse min-[280px]:flex-row min-[280px]:justify-between items-start gap-3 min-[280px]:gap-4">
-                  <div>
-                    <div className="text-lg font-display text-on-surface uppercase tracking-wider">{app.candidates?.full_name}</div>
-                    <div className="text-[10px] font-mono text-on-surface-variant truncate max-w-[200px]">{app.candidates?.email}</div>
-                  </div>
-                  <span className={`self-end min-[280px]:self-start px-2 py-1 text-[9px] font-bold uppercase tracking-widest border whitespace-nowrap ${
-                    app.status === 'applied' ? 'border-primary/30 text-primary bg-primary/5' : 
-                    app.status === 'reviewed' ? 'border-blue-500/30 text-blue-500 bg-blue-500/5' :
-                    'border-on-surface-variant/30 text-on-surface-variant'
-                  }`}>
-                    {app.status}
-                  </span>
-                </div>
-                
-                {/* Job Info */}
-                <div className="border-t border-outline-variant/30 pt-4">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant/60 mb-1">Applying For</div>
-                  <div className="text-sm text-on-surface font-medium uppercase tracking-wider">{app.jobs?.job_title}</div>
-                  <div className="text-[10px] font-mono text-on-surface-variant">{app.jobs?.job_reference_code}</div>
-                </div>
-
-                {/* Footer Info & Actions */}
-                <div className="flex justify-between items-end border-t border-outline-variant/30 pt-4 mt-2">
-                  <div className="text-[10px] font-mono text-on-surface-variant uppercase tracking-widest">
-                    <span className="opacity-50 block mb-1">Date Applied</span>
-                    {new Date(app.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </div>
-                  <button 
-                    onClick={() => openDetails(app)}
-                    className="px-4 py-2 bg-primary/10 border border-primary/20 text-[10px] font-mono uppercase tracking-widest text-primary hover:bg-primary hover:text-on-primary transition-all"
-                  >
-                    View
-                  </button>
-                </div>
-              </div>
-            )) : (
-              <div className="p-8 glass glass-border text-center text-on-surface-variant font-mono text-sm">
-                No applications found matching "{searchQuery}"
-              </div>
-            )}
-          </div>
+          <ApplicationMobileList 
+            applications={sortedApplications}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onViewDetails={openDetails}
+            searchQuery={searchQuery}
+          />
         </div>
       </section>
+
+      <ActionConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Applications"
+        message={<>Are you sure you want to delete <span className="text-red-400 font-bold">{selectedIds.length}</span> selected application{selectedIds.length > 1 ? 's' : ''}? This action is irreversible.</>}
+        confirmText="Confirm Delete"
+        confirmStyle="danger"
+      />
     </main>
   )
 }

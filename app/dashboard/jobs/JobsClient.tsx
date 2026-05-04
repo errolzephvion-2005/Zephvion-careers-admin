@@ -118,7 +118,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
 
     // Calculate changes
     const changes: any[] = []
-    Object.keys(updatedData).forEach(key => {
+    for (const key of Object.keys(updatedData) as Array<keyof Job>) {
       const oldVal = editingJob[key]
       const newVal = updatedData[key]
 
@@ -129,7 +129,7 @@ export default function JobsClient({ jobs }: JobsClientProps) {
           to: newVal ?? 'N/A'
         })
       }
-    })
+    }
 
     if (changes.length === 0) {
       setEditingJob(null)

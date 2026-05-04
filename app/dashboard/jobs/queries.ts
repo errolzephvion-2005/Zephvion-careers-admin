@@ -6,7 +6,7 @@ export async function getJobs(): Promise<Job[]> {
   const { data, error } = await supabase
     .from('jobs')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
 
   if (error) {
     console.error('Error fetching jobs:', error)
