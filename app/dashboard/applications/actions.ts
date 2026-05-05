@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function deleteApplications(ids: string[]) {
+export async function deleteApplications(ids: number[]) {
   if (!ids || ids.length === 0) return { success: false, error: 'No IDs provided' }
 
   try {

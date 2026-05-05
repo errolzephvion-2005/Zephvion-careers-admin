@@ -53,16 +53,27 @@ export default function LoginPage() {
         onMouseLeave={() => setIsOverCard(false)}
         className="w-full max-w-md glass glass-border p-6 md:p-10 glow-primary relative z-10 transition-all duration-500 overflow-hidden"
       >
-        <header className="mb-10 relative text-center overflow-hidden">
+        <header 
+          className="mb-10 relative text-center overflow-hidden"
+          style={{
+            background: 'repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #2a2a2a 10px, #2a2a2a 20px)',
+            padding: '40px 20px',
+            borderRadius: '10px'
+          }}
+        >
           <h1
             className="font-display tracking-tighter mb-0.3 leading-none"
             style={{
               fontSize: 'clamp(3rem, 20vw, 4.4rem)',
               color: '#1E80E1',
               textShadow: '3px 3px 0px #FF5A1F, 6px 6px 0px #000000',
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '-2px'
             }}
           >
-            Zephvion
+            ZEPHVION
           </h1>
           <div className="relative mt-[-5px] md:mt-[-10px] w-full px-2">
             <p
@@ -71,6 +82,8 @@ export default function LoginPage() {
                 fontSize: 'clamp(0.75rem, 4vw, 1rem)',
                 letterSpacing: '0.4em',
                 whiteSpace: 'nowrap',
+                fontWeight: 600,
+                color: '#a1a1aa'
               }}
             >
               Careers Admin
